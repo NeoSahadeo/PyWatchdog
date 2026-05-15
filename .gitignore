@@ -1,3 +1,5 @@
 .venv
 src/PyWatchdog.egg-info
 main.py
+dist
+**/__pycache__

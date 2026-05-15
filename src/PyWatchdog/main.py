@@ -38,13 +38,13 @@ class PyWatchdog(metaclass=Singleton):
             self.__events__["file_change"] = []
             self.__events__["file_change"].append(callback)
 
-    def unsubscribe(self, event_name: str, callback: Callable) -> None:
-        events = self.__events__.get(event_name)
+    def unsubscribe(self, callback: Callable) -> None:
+        events = self.__events__.get("file_change")
         if not events:
             return
         events.remove(callback)
         if events.__len__() == 0:
-            self.__events__.pop(event_name)
+            self.__events__.pop("file_change")
 
     def dispatch(self, event_name: str, *args, **kwargs):
         for event in self.__events__.get(event_name, []):
@@ -65,9 +65,16 @@ class PyWatchdog(metaclass=Singleton):
             self._thread.join()
 
     def monitor(self, dirs: list[str] = []):
-        missing = [x for x in dirs if x not in self.__dirs__]
-        for x in missing:
-            self.__dirs__.append(x)
+        for x in dirs:
+            if x not in self.__dirs__:
+                self.__dirs__.append(x)
+        self._cache = {}
+
+    def unmonitor(self, dirs: list[str] = []):
+        for x in dirs:
+            if x in self.__dirs__:
+                self.__dirs__.remove(x)
+        self._cache = {}
 
     def _hash(self, string: str) -> str:
         return hashlib.md5(bytes(string, "utf-8")).hexdigest()
@@ -165,7 +172,7 @@ if __name__ == "__main__":
                 pass
 
     for x in callbacks_funcs:
-        Watchdog().subscribe(x)
+        PyWatchdog().subscribe(x)
 
-    Watchdog().monitor(paths)
-    Watchdog().watch(poll)
+    PyWatchdog().monitor(paths)
+    PyWatchdog().watch(poll)
