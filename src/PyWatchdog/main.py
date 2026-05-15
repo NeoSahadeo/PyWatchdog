@@ -18,7 +18,7 @@ class Singleton(type):
         return cls._instances[cls]
 
 
-class Watchdog(metaclass=Singleton):
+class PyWatchdog(metaclass=Singleton):
     __dirs__: list[str] = []
     __events__: ClassVar[Dict[str, List[Callable]]] = {}
 
